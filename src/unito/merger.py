@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import json
 import math
+import unicodedata
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from copy import deepcopy
 from datetime import datetime
@@ -136,6 +137,16 @@ def is_excluded_codepoint(
             or (0x2F800 <= codepoint <= 0x2FA1F)  # CJK Compatibility Supplement
         ):
             return True
+
+        # Robust name check fallback
+        try:
+            # Prefer unicodedata2 if available
+            ud = unicodedata2 if unicodedata2 else unicodedata
+            name = ud.name(chr(codepoint), "")
+            if "CJK UNIFIED IDEOGRAPH" in name:
+                return True
+        except (ValueError, Exception):
+            pass
 
     # Never exclude Private Use Areas or other non-script specifics unless specified
     if 0xE000 <= codepoint <= 0xF8FF:  # PUA
@@ -946,10 +957,15 @@ def main(
             sorted_fonts_04,
             wght,
             wdth,
-            exclude_hani=exclude_hani,
+            exclude_hani=True,  # STRICTLY exclude Han from main merge
             exclude_hang=exclude_hang,
             cache_dir=cfg.paths.cache_instantiation,
         )
+
+        # Sort results to ensure deterministic merge order (KR first)
+        path_to_index = {fp.name: i for i, fp in enumerate(sorted_fonts_04)}
+        font_data_list.sort(key=lambda x: path_to_index.get(x["font_path"].name, 9999))
+
         print(f"  Merging {len([d for d in font_data_list if not d['skip']])} fonts into target...")
         for font_data in font_data_list:
             if font_data["skip"]:
@@ -964,7 +980,7 @@ def main(
                 source_font,
                 target_font,
                 font_data["font_path"].name,
-                exclude_hani=exclude_hani,
+                exclude_hani=True,  # STRICTLY exclude Han from main merge
                 exclude_hang=exclude_hang,
                 is_base_font=False,
             )
@@ -986,6 +1002,11 @@ def main(
             exclude_hang=True,  # Always strictly exclude Hangul from Unifont
             cache_dir=cfg.paths.cache_instantiation,
         )
+
+        # Sort results
+        path_to_index = {fp.name: i for i, fp in enumerate(fonts_05)}
+        font_data_list.sort(key=lambda x: path_to_index.get(x["font_path"].name, 9999))
+
         print(f"  Merging {len([d for d in font_data_list if not d['skip']])} fonts into target...")
         for font_data in font_data_list:
             if font_data["skip"]:

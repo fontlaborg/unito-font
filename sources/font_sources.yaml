@@ -177,7 +177,6 @@ sources:
       - path: "notosanstamil/NotoSansTamil[wdth,wght].ttf"
       - path: "notosanstamilsupplement/NotoSansTamilSupplement-Regular.ttf"
       - path: "notosanstangsa/NotoSansTangsa[wght].ttf"
-      - path: "notosanstc/NotoSansTC[wght].ttf"
       - path: "notosanstelugu/NotoSansTelugu[wdth,wght].ttf"
       - path: "notosansthaana/NotoSansThaana[wght].ttf"
       - path: "notosansthai/NotoSansThai[wdth,wght].ttf"
@@ -241,11 +240,11 @@ sources:
 
   # Han frequency data
   hani:
-    description: "TC font for Han frequency analysis"
+    description: "SC font for Han frequency analysis"
     repo: "google_fonts"
     fonts:
-      - path: "notosanstc/NotoSansTC[wght].ttf"
-        description: "Traditional Chinese font used for Han frequency analysis"
+      - path: "notosanssc/NotoSansSC[wght].ttf"
+        description: "Simplified Chinese font used for Han frequency analysis"
 
 # Output configuration
 output:
