@@ -19,9 +19,21 @@ from .utils import ensure_vendor_fonttools
 ensure_vendor_fonttools()
 
 try:
-    from fontTools import unicodedata  # type: ignore[attr-defined]
+    from fontTools.unicodedata import script  # type: ignore[attr-defined]
 except ImportError:
-    import unicodedata  # fallback to stdlib
+    try:
+        from unicodedata2 import script  # type: ignore[attr-defined]
+    except ImportError:
+
+        def script(char: str) -> str:
+            # Fallback for basic Hani detection if unicodedata2 is missing
+            # This is not perfect but better than crashing
+            cp = ord(char)
+            if 0x4E00 <= cp <= 0x9FFF:
+                return "Hani"
+            return "Common"
+
+
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 
@@ -106,15 +118,38 @@ def is_excluded_codepoint(
     codepoint: int, exclude_hani: bool = True, exclude_hang: bool = True
 ) -> bool:
     """Check if a Unicode codepoint should be excluded."""
+    # Strict CJK Unified Ideographs ranges (including extensions)
+    # This prevents Unifont from leaking CJK characters when they should be handled by Noto
+    if exclude_hani:
+        if (
+            (0x4E00 <= codepoint <= 0x9FFF)  # CJK Unified Ideographs
+            or (0x3400 <= codepoint <= 0x4DBF)  # Extension A
+            or (0x20000 <= codepoint <= 0x2A6DF)  # Extension B
+            or (0x2A700 <= codepoint <= 0x2B73F)  # Extension C
+            or (0x2B740 <= codepoint <= 0x2B81F)  # Extension D
+            or (0x2B820 <= codepoint <= 0x2CEAF)  # Extension E
+            or (0x2CEB0 <= codepoint <= 0x2EBEF)  # Extension F
+            or (0x30000 <= codepoint <= 0x3134F)  # Extension G
+            or (0x31350 <= codepoint <= 0x323AF)  # Extension H
+            or (0x2EBF0 <= codepoint <= 0x2EE5F)  # Extension I
+            or (0xF900 <= codepoint <= 0xFAFF)  # CJK Compatibility Ideographs
+            or (0x2F800 <= codepoint <= 0x2FA1F)  # CJK Compatibility Supplement
+        ):
+            return True
+
+    # Never exclude Private Use Areas or other non-script specifics unless specified
+    if 0xE000 <= codepoint <= 0xF8FF:  # PUA
+        return False
+
     try:
-        script = unicodedata.script(chr(codepoint))
-        if exclude_hani and script in {"Hani", "Hans", "Hant"}:
+        sc = script(chr(codepoint))
+        if exclude_hani and sc == "Hani":
             return True
-        if exclude_hang and script == "Hang":
+        if exclude_hang and sc == "Hang":
             return True
-        return False
-    except (ValueError, KeyError):
-        return False
+    except (ValueError, AttributeError):
+        pass
+    return False
 
 
 def is_valid_unicode_character(codepoint: int) -> bool:
@@ -572,14 +607,22 @@ def set_post_format_3(font: TTFont) -> None:
 
 
 def build_hani_cmap(
-    hani_dir: Path,
+    hani_dir: Path | None,
     wght: int,
     wdth: int,
     cache_dir: Path | None = None,
+    font_paths: list[Path] | None = None,
 ) -> tuple[dict[int, tuple[TTFont, str]], list[tuple[str, TTFont]]]:
-    """Build collective cmap for Han characters from ``hani/`` fonts."""
+    """Build collective cmap for Han characters from ``hani/`` fonts or specified paths."""
     hani_fonts: list[tuple[str, TTFont]] = []
-    for font_path in get_source_fonts(hani_dir):
+
+    source_paths: list[Path] = []
+    if font_paths:
+        source_paths.extend(font_paths)
+    elif hani_dir and hani_dir.exists():
+        source_paths.extend(get_source_fonts(hani_dir))
+
+    for font_path in source_paths:
         font = instantiate_font(font_path, wght=wght, wdth=wdth, cache_dir=cache_dir)
         hani_fonts.append((font_path.name, font))
 
@@ -599,6 +642,7 @@ def add_hani_by_frequency(
     wght: int,
     wdth: int,
     cache_dir: Path | None = None,
+    font_paths: list[Path] | None = None,
 ) -> tuple[int, int]:
     """Add Han characters by frequency until glyph limit is reached."""
     jsonl_path = hani_dir / "Hani.jsonl"
@@ -606,8 +650,10 @@ def add_hani_by_frequency(
         print(f"  WARNING: {jsonl_path} not found, skipping Han characters")
         return 0, 0
 
-    print("\n[HANI] Building collective cmap from hani/ fonts...")
-    collective_cmap, hani_fonts = build_hani_cmap(hani_dir, wght, wdth, cache_dir=cache_dir)
+    print("\n[HANI] Building collective cmap from Han fonts...")
+    collective_cmap, hani_fonts = build_hani_cmap(
+        hani_dir, wght, wdth, cache_dir=cache_dir, font_paths=font_paths
+    )
     print(f"  Collective cmap: {len(collective_cmap)} Han codepoints available")
 
     with jsonl_path.open("r", encoding="utf-8") as handle:
@@ -764,7 +810,9 @@ def main(
     """Main entry point for Unito font merger."""
     cfg = config or default_config()
     exclude_hang = not hang
-    exclude_hani = True
+    # If hani is requested, we do frequency analysis later, so we exclude it during source merge
+    # If hani is NOT requested, we allow it to pass through from sources if it exists
+    exclude_hani = hani
 
     input_dir = cfg.paths.input_dir
     output_dir = cfg.paths.output_dir
@@ -857,44 +905,45 @@ def main(
         total_codepoints_added += c
         source_font.close()
 
-    print("\n[3/6] Processing 01in/03 (world scripts)...")
-    fonts_03 = get_source_fonts(input_dir / "03")
-    print(f"  Found {len(fonts_03)} fonts - using parallel processing")
-    font_data_list = process_fonts_parallel(
-        fonts_03,
-        wght,
-        wdth,
-        exclude_hani=True,
-        exclude_hang=True,
-        cache_dir=cfg.paths.cache_instantiation,
-    )
-
-    print(f"  Merging {len([d for d in font_data_list if not d['skip']])} fonts into target...")
-    for font_data in font_data_list:
-        if font_data["skip"]:
-            continue
-
-        source_font = instantiate_font(
-            font_data["font_path"], wght=wght, wdth=wdth, cache=font_cache
-        )
-        g, c = merge_glyphs_from_font(
-            source_font,
-            target_font,
-            font_data["font_path"].name,
-            exclude_hani=exclude_hani,
-            exclude_hang=exclude_hang,
-            is_base_font=False,
-        )
-        total_glyphs_added += g
-        total_codepoints_added += c
-        source_font.close()
-
     print("\n[4/6] Processing 01in/04 (CJK fonts, excluding Han)...")
     fonts_04 = get_source_fonts(input_dir / "04")
-    if len(fonts_04) > 2:
-        print(f"  Found {len(fonts_04)} fonts - using parallel processing")
+    # Identify SC/TC fonts for later frequency fill
+    hani_fill_fonts: list[Path] = []
+
+    # Sort so that we prioritize SC then TC for frequency fill if available
+    # But for the main merge, we process them all (excluding Hani if flag is set)
+    sc_fonts = [f for f in fonts_04 if "NotoSansSC" in f.name]
+    tc_fonts = [f for f in fonts_04 if "NotoSansTC" in f.name]
+    kr_fonts = [f for f in fonts_04 if "NotoSansKR" in f.name]
+    jp_fonts = [f for f in fonts_04 if "NotoSansJP" in f.name]
+    hk_fonts = [f for f in fonts_04 if "NotoSansHK" in f.name]
+
+    # Priority for frequency fill: SC -> TC -> HK -> JP -> KR
+    hani_fill_fonts.extend(sorted(sc_fonts))
+    hani_fill_fonts.extend(sorted(tc_fonts))
+    hani_fill_fonts.extend(sorted(hk_fonts))
+    hani_fill_fonts.extend(sorted(jp_fonts))
+    hani_fill_fonts.extend(sorted(kr_fonts))
+
+    # Explicit order for main merge: KR -> SC -> TC -> HK -> JP
+    # This prioritizes Hangul from KR
+    sorted_fonts_04: list[Path] = []
+    sorted_fonts_04.extend(sorted(kr_fonts))
+    sorted_fonts_04.extend(sorted(sc_fonts))
+    sorted_fonts_04.extend(sorted(tc_fonts))
+    sorted_fonts_04.extend(sorted(hk_fonts))
+    sorted_fonts_04.extend(sorted(jp_fonts))
+
+    # Add any remaining fonts
+    processed_04 = set(sorted_fonts_04)
+    for f in fonts_04:
+        if f not in processed_04:
+            sorted_fonts_04.append(f)
+
+    if sorted_fonts_04:
+        print(f"  Found {len(sorted_fonts_04)} fonts - using parallel processing")
         font_data_list = process_fonts_parallel(
-            fonts_04,
+            sorted_fonts_04,
             wght,
             wdth,
             exclude_hani=exclude_hani,
@@ -906,7 +955,10 @@ def main(
             if font_data["skip"]:
                 continue
             source_font = instantiate_font(
-                font_data["font_path"], wght=wght, wdth=wdth, cache=font_cache
+                font_data["font_path"],
+                wght=wght,
+                wdth=wdth,
+                cache_dir=cfg.paths.cache_instantiation,
             )
             g, c = merge_glyphs_from_font(
                 source_font,
@@ -914,6 +966,42 @@ def main(
                 font_data["font_path"].name,
                 exclude_hani=exclude_hani,
                 exclude_hang=exclude_hang,
+                is_base_font=False,
+            )
+            total_glyphs_added += g
+            total_codepoints_added += c
+            source_font.close()
+    else:
+        print("  No fonts found in 04")
+
+    print("\n[5/6] Processing 01in/05 (Unifont, excluding Han)...")
+    fonts_05 = get_source_fonts(input_dir / "05")
+    if len(fonts_05) > 2:
+        print(f"  Found {len(fonts_05)} fonts - using parallel processing")
+        font_data_list = process_fonts_parallel(
+            fonts_05,
+            wght,
+            wdth,
+            exclude_hani=True,  # Always strictly exclude Han from Unifont
+            exclude_hang=True,  # Always strictly exclude Hangul from Unifont
+            cache_dir=cfg.paths.cache_instantiation,
+        )
+        print(f"  Merging {len([d for d in font_data_list if not d['skip']])} fonts into target...")
+        for font_data in font_data_list:
+            if font_data["skip"]:
+                continue
+            source_font = instantiate_font(
+                font_data["font_path"],
+                wght=wght,
+                wdth=wdth,
+                cache_dir=cfg.paths.cache_instantiation,
+            )
+            g, c = merge_glyphs_from_font(
+                source_font,
+                target_font,
+                font_data["font_path"].name,
+                exclude_hani=True,
+                exclude_hang=True,
                 is_base_font=False,
             )
             total_glyphs_added += g
@@ -924,50 +1012,12 @@ def main(
             source_font = instantiate_font(
                 font_path, wght=wght, wdth=wdth, cache_dir=cfg.paths.cache_instantiation
             )
-
-            total_glyphs_added += g
-            total_codepoints_added += c
-            source_font.close()
-
-    print("\n[5/6] Processing 01in/05 (Unifont, excluding Han)...")
-    fonts_05 = get_source_fonts(input_dir / "05")
-    if len(fonts_05) > 2:
-        print(f"  Found {len(fonts_05)} fonts - using parallel processing")
-        font_data_list = process_fonts_parallel(
-            fonts_05,
-            wght,
-            wdth,
-            exclude_hani=exclude_hani,
-            exclude_hang=exclude_hang,
-            cache_dir=cfg.paths.cache_instantiation,
-        )
-        print(f"  Merging {len([d for d in font_data_list if not d['skip']])} fonts into target...")
-        for font_data in font_data_list:
-            if font_data["skip"]:
-                continue
-            source_font = instantiate_font(
-                font_data["font_path"], wght=wght, wdth=wdth, cache=font_cache
-            )
-            g, c = merge_glyphs_from_font(
-                source_font,
-                target_font,
-                font_data["font_path"].name,
-                exclude_hani=exclude_hani,
-                exclude_hang=exclude_hang,
-                is_base_font=False,
-            )
-            total_glyphs_added += g
-            total_codepoints_added += c
-            source_font.close()
-    else:
-        for font_path in fonts_05:
-            source_font = instantiate_font(font_path, wght=wght, wdth=wdth, cache=font_cache)
             g, c = merge_glyphs_from_font(
                 source_font,
                 target_font,
                 font_path.name,
-                exclude_hani=exclude_hani,
-                exclude_hang=exclude_hang,
+                exclude_hani=True,
+                exclude_hang=True,
                 is_base_font=False,
             )
             total_glyphs_added += g
@@ -978,7 +1028,12 @@ def main(
         hani_dir = input_dir / "hani"
         if hani_dir.exists():
             g, c = add_hani_by_frequency(
-                target_font, hani_dir, wght, wdth, cache_dir=cfg.paths.cache_instantiation
+                target_font,
+                hani_dir,
+                wght,
+                wdth,
+                cache_dir=cfg.paths.cache_instantiation,
+                font_paths=hani_fill_fonts,
             )
             total_glyphs_added += g
             total_codepoints_added += c
