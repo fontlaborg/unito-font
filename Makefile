@@ -1,7 +1,9 @@
 SOURCES=$(shell python3 scripts/read-config.py --sources )
 FAMILY=$(shell python3 scripts/read-config.py --family )
-DRAWBOT_SCRIPTS=$(shell ls documentation/*.py)
-DRAWBOT_OUTPUT=$(shell ls documentation/*.py | sed 's/\.py/.png/g')
+DRAWBOT_SCRIPTS=$(shell ls documentation/*.py 2>/dev/null)
+DRAWBOT_OUTPUT=$(shell ls documentation/*.py 2>/dev/null | sed 's/\.py/.png/g')
+
+.PHONY: help build venv customize test proof images clean update-project-template update
 
 help:
 	@echo "###"
@@ -14,16 +16,9 @@ help:
 	@echo "  make images: Creates PNG specimen images in the documentation/ directory"
 	@echo
 
-build: build.stamp
-
-venv: venv/touchfile
-
-customize: venv
-	. venv/bin/activate; python3 scripts/customize.py
-
-build.stamp: venv
+build: venv
 	rm -rf fonts
-	. venv/bin/activate; python3 scripts/build.py && touch build.stamp
+	. venv/bin/activate; python3 scripts/build.py
 
 venv/touchfile: pyproject.toml
 	test -d venv || (command -v uv >/dev/null 2>&1 && uv venv venv || python3 -m venv venv)
