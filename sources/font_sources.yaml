@@ -277,9 +277,9 @@ sources:
     extra_fonts:
       - source: "60cjk2/NotoSerifTangut-Regular.ttf"
 
-  folder_74sc:
-    description: "Unito SC (Simplified Chinese)"
-    target_dir: "74sc"
+  folder_74cn:
+    description: "Unito CN (China/Simplified Chinese)"
+    target_dir: "74cn"
     repo: "google_fonts"
     fonts:
       - path: "notosanssc/NotoSansSC[wght].ttf"
@@ -287,9 +287,9 @@ sources:
       repo: "source_han_sans"
       path: "CN/SourceHanSansCN-Regular.otf"
 
-  folder_75tc:
-    description: "Unito TC (Traditional Chinese)"
-    target_dir: "75tc"
+  folder_75tw:
+    description: "Unito TW (Taiwan/Traditional Chinese)"
+    target_dir: "75tw"
     repo: "google_fonts"
     fonts:
       - path: "notosanstc/NotoSansTC[wght].ttf"
@@ -312,7 +312,7 @@ sources:
 
   # Han frequency data
   hani:
-    description: "SC font for Han frequency analysis"
+    description: "CN font for Han frequency analysis"
     repo: "google_fonts"
     fonts:
       - path: "notosanssc/NotoSansSC[wght].ttf"
@@ -348,11 +348,11 @@ output:
     - name: "Unito KR"
       source_dir: "73kr"
       variants: *base_variants
-    - name: "Unito SC"
-      source_dir: "74sc"
+    - name: "Unito CN"
+      source_dir: "74cn"
       variants: *base_variants
-    - name: "Unito TC"
-      source_dir: "75tc"
+    - name: "Unito TW"
+      source_dir: "75tw"
       variants: *base_variants
 
 # Build options

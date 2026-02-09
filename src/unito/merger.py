@@ -941,10 +941,10 @@ def main(
 
     print("\n[4/6] Processing 01in/04 (CJK fonts, excluding Han)...")
     fonts_04 = get_source_fonts(input_dir / "04")
-    # Identify SC/TC fonts for later frequency fill
+    # Identify CN/TW fonts for later frequency fill
     hani_fill_fonts: list[Path] = []
 
-    # Sort so that we prioritize SC then TC for frequency fill if available
+    # Sort so that we prioritize CN then TW for frequency fill if available
     # But for the main merge, we process them all (excluding Hani if flag is set)
     sc_fonts = [f for f in fonts_04 if "NotoSansSC" in f.name]
     tc_fonts = [f for f in fonts_04 if "NotoSansTC" in f.name]
@@ -952,14 +952,14 @@ def main(
     jp_fonts = [f for f in fonts_04 if "NotoSansJP" in f.name]
     hk_fonts = [f for f in fonts_04 if "NotoSansHK" in f.name]
 
-    # Priority for frequency fill: SC -> TC -> HK -> JP -> KR
+    # Priority for frequency fill: SC (CN) -> TC (TW) -> HK -> JP -> KR
     hani_fill_fonts.extend(sorted(sc_fonts))
     hani_fill_fonts.extend(sorted(tc_fonts))
     hani_fill_fonts.extend(sorted(hk_fonts))
     hani_fill_fonts.extend(sorted(jp_fonts))
     hani_fill_fonts.extend(sorted(kr_fonts))
 
-    # Explicit order for main merge: KR -> SC -> TC -> HK -> JP
+    # Explicit order for main merge: KR -> SC (CN) -> TC (TW) -> HK -> JP
     # This prioritizes Hangul from KR
     sorted_fonts_04: list[Path] = []
     sorted_fonts_04.extend(sorted(kr_fonts))

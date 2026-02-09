@@ -5,7 +5,7 @@ as the top-level build entry point. It handles:
 
 1. Phase 1: Prepare sources (download + instantiate variable fonts to statics)
 2. Phase 2: Build base Unito family (merge 10base → 20symb → 30mult → 40cjkb → 50unif → 51unif)
-3. Phase 3: Build CJK regional families (71hk, 72jp, 73kr, 74sc, 75tc)
+3. Phase 3: Build CJK regional families (71hk, 72jp, 73kr, 74cn, 75tw)
 4. Delivery: Copy all built fonts to fonts/ output directory
 
 CRITICAL: Unlike the old merger.main(), this pipeline PRESERVES GSUB/GPOS from the
@@ -104,8 +104,8 @@ CJK_FAMILIES: list[FamilyConfig] = [
     FamilyConfig(name="Unito HK", slug="UnitoHK", source_dir="71hk"),
     FamilyConfig(name="Unito JP", slug="UnitoJP", source_dir="72jp"),
     FamilyConfig(name="Unito KR", slug="UnitoKR", source_dir="73kr"),
-    FamilyConfig(name="Unito SC", slug="UnitoSC", source_dir="74sc"),
-    FamilyConfig(name="Unito TC", slug="UnitoTC", source_dir="75tc"),
+    FamilyConfig(name="Unito CN", slug="UnitoCN", source_dir="74cn"),
+    FamilyConfig(name="Unito TW", slug="UnitoTW", source_dir="75tw"),
 ]
 
 
@@ -777,8 +777,8 @@ def deliver(
     - 71hk/build/*.ttf
     - 72jp/build/*.ttf
     - 73kr/build/*.ttf
-    - 74sc/build/*.ttf
-    - 75tc/build/*.ttf
+    - 74cn/build/*.ttf
+    - 75tw/build/*.ttf
 
     Args:
         sources_dir: Root sources directory containing build folders.
@@ -798,8 +798,8 @@ def deliver(
         "71hk",
         "72jp",
         "73kr",
-        "74sc",
-        "75tc",
+        "74cn",
+        "75tw",
     ]
 
     delivered: list[Path] = []

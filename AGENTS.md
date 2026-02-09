@@ -48,7 +48,7 @@ Fonts are organized into logical "folders" in `font_sources.yaml`. The merge pro
 - **Folder 04 (CJK)**: Noto Sans CJK (Chinese, Japanese, Korean) - typically large files.
 - **Folder 05 (UnifontEX)**: UnifontEX (Bitmap-like outline fallback).
 - **Folder 06 (Unifont)**: Original Unifont (Requires OTF->TTF conversion).
-- **Hani**: Special source for Han frequency analysis (Noto Sans TC).
+- **Hani**: Special source for Han frequency analysis (Noto Sans SC, used for CN family).
 
 ## Data Flow
 1. **Config Load**: `unito-build` starts, reads `font_sources.yaml`.

@@ -44,7 +44,7 @@ At this point we’re building a set of fonts 'Unito' that are non-Han, non-Hang
 
 build 'Unito' fonts from the above constituents into ./sources/60unito/build/
 
-## CJK families: 'Unito HK', 'Unito JP', 'Unito KR', 'Unito SC', 'Unito TC' 
+## CJK families: 'Unito HK', 'Unito JP', 'Unito KR', 'Unito CN', 'Unito TW'
 
 ### ./sources/71hk/
 
@@ -71,25 +71,25 @@ build 'Unito' fonts from the above constituents into ./sources/60unito/build/
 - produce the necessary statics into ./sources/73kr/static/
 - build 'Unito KR' fonts from ./sources/60unito/build/ statics and from ./sources/60cjk2/NotoSerifTangut-Regular.ttf and from ./sources/73kr/static/ fonts into ./sources/73kr/build/
 
-### ./sources/74sc/
+### ./sources/74cn/
 
 - take ./notosanssc/NotoSansSC[wght].ttf from the https://github.com/google/fonts/tree/main/ofl/ repo
-- subset to https://github.com/adobe-fonts/source-han-sans/raw/refs/heads/release/SubsetOTF/CN/SourceHanSansCN-Regular.otf 
-- save in ./sources/74sc/NotoSansSC[wght].ttf
-- produce the necessary statics into ./sources/74sc/static/
-- build 'Unito SC' fonts from ./sources/60unito/build/ statics and from ./sources/74sc/static/ fonts into ./sources/74sc/build/
+- subset to https://github.com/adobe-fonts/source-han-sans/raw/refs/heads/release/SubsetOTF/CN/SourceHanSansCN-Regular.otf
+- save in ./sources/74cn/NotoSansSC[wght].ttf
+- produce the necessary statics into ./sources/74cn/static/
+- build 'Unito CN' fonts from ./sources/60unito/build/ statics and from ./sources/74cn/static/ fonts into ./sources/74cn/build/
 
-### ./sources/75tc/
+### ./sources/75tw/
 
 - take ./notosanstc/NotoSansTC[wght].ttf from the https://github.com/google/fonts/tree/main/ofl/ repo
 - subset to https://github.com/adobe-fonts/source-han-sans/raw/refs/heads/release/SubsetOTF/TW/SourceHanSansTW-Regular.otf
-- save in ./sources/75tc/NotoSansTC[wght].ttf
-- produce the necessary statics into ./sources/75tc/static/
-- build 'Unito TC' fonts from ./sources/60unito/build/ statics and from ./sources/75tc/static/ fonts into ./sources/75tc/build/
+- save in ./sources/75tw/NotoSansTC[wght].ttf
+- produce the necessary statics into ./sources/75tw/static/
+- build 'Unito TW' fonts from ./sources/60unito/build/ statics and from ./sources/75tw/static/ fonts into ./sources/75tw/build/
 
-## Delivery 
+## Delivery
 
-- Copy all 'Unito', 'Unito HK', 'Unito JP', 'Unito KR', 'Unito SC', 'Unito TC' fonts into ./fonts/
+- Copy all 'Unito', 'Unito HK', 'Unito JP', 'Unito KR', 'Unito CN', 'Unito TW' fonts into ./fonts/
 
 ## NOTES
 
