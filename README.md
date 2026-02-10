@@ -1,95 +1,90 @@
-## Setting up your font
+# Unito
 
-### New repositories
+**A pan-Unicode glyph collection** — 6 families · 24 fonts · SIL Open Font License
 
-1. Hit the green button above ("Use this template") to create your own repository.
+Unito merges hundreds of [Noto](https://fonts.google.com/noto) fonts into single files that provide **default glyph forms** for Unicode codepoints. It does not include script-specific OpenType shaping rules (GSUB/GPOS) necessary for correct orthographic text in complex scripts — use Noto when you need proper text rendering.
 
-2. Clone the repository, and replace the font sources in the `sources` directory with your own font sources. These sources may be either in Glyphs format or UFO/Designspace formats.\
-   \
-   Unlike many open source distributors, Google Fonts is **curated**. Fonts shipped to the platform have to match the [Google Fonts Specifications](https://github.com/googlefonts/gf-docs/tree/main/Spec). Please read them carefully.\
-   \
-   _(The sample font provided in this template is [Radio Canada](https://github.com/googlefonts/radiocanadadisplay/) by Charles Daoud, Etienne Aubert Bonn, Alexandre Saumier Demers and contributors.)_
+Includes [Unifont](https://unifoundry.com/unifont/) glyphs for the newest Unicode additions not yet supported by Noto. Only some glyphs vary across styles — many scripts share the same form regardless of weight or width.
 
-3. Then reference the sources in the file `sources/config.yaml`, as well as making any other changes you would like to make based on the instructions in the [Google Fonts Builder documentation](https://github.com/googlefonts/gftools/blob/main/Lib/gftools/builder/__init__.py).
+> **Not a text font.** Unito is a glyph collection and Unicode reference, not a Noto replacement.
 
-4. Add yourself to the `AUTHORS.txt` and `CONTRIBUTORS.txt` files.
+## Families
 
-5. Fill out `documentation/DESCRIPTION.en_us.html` with a description about your font.
+Each family adds region-specific CJK glyphs to the base Unito codepoint set. All families ship in four styles: **Regular**, **Bold**, **Condensed**, and **Bold Condensed**.
 
-6. Rewrite this Readme file according to the recommendations in the [Google Fonts Guide](https://googlefonts.github.io/gf-guide/readmefile.html).
+| Family | Description |
+|--------|-------------|
+| **Unito** | Base — all Unicode scripts except Hangul, Tangut, and Han. Latin, Cyrillic, Greek, Arabic, Hebrew, Devanagari, Unifont, and hundreds more. |
+| **Unito JP** | Japanese — adds Japanese Kanji to the base set. |
+| **Unito CN** | Simplified Chinese — adds Simplified Chinese Hanzi. |
+| **Unito HK** | Hong Kong — adds Chinese Hanzi for Hong Kong. |
+| **Unito TW** | Taiwan — adds Traditional Chinese Hanzi for Taiwan. |
+| **Unito KR** | Korean — adds Hangul, Hanja, and Tangut. |
 
-7. Add and commit these files to git.
+## Download
 
-8. **At the command line, run `make customize` to ensure that all the paths and URLs in your project are correct**. This will also push your changes to GitHub.
+All fonts are free under the [SIL Open Font License](OFL.txt). Click any link to download the TTF directly from GitHub.
 
-9. **Set up your GitHub pages site**: go to Settings > Pages and ensure that the "Source" drop-down is set to "Deploy from a Branch". Ensure that the "Branch" is set to `gh-pages`. If this branch is not available, check that the "Build font and specimen" action in the "Actions" tab has completed; if it completed successfully, then try again - `gh-pages` should now be an option.
+### Unito (Base)
 
-10. If Github Actions has successfully built the family, you will find the font binaries in the Actions tab. The official Github Actions documentation provides further [information](https://docs.github.com/en/actions/managing-workflow-runs/downloading-workflow-artifacts).
+- [Unito-Regular.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/Unito-Regular.ttf)
+- [Unito-Bold.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/Unito-Bold.ttf)
+- [Unito-Condensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/Unito-Condensed.ttf)
+- [Unito-BoldCondensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/Unito-BoldCondensed.ttf)
 
-### Updating a repository
+### Unito JP (Japanese)
 
-1. To update your font repository to bring in the latest best-practices from the Google Fonts Project Template, run `make update-project-template` from the command line. This requires the `node` Javascript engine to be installed; if you don't have that already, [follow these instructions](https://nodejs.org/en/download/package-manager#macos) to install on your platform.
+- [UnitoJP-Regular.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoJP-Regular.ttf)
+- [UnitoJP-Bold.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoJP-Bold.ttf)
+- [UnitoJP-Condensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoJP-Condensed.ttf)
+- [UnitoJP-BoldCondensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoJP-BoldCondensed.ttf)
 
-2. To update the Python build chain which builds your fonts, run `make update` and `git add`/`git commit` the new `requirements.txt`.
+### Unito CN (Simplified Chinese)
 
-## More things to do
+- [UnitoCN-Regular.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoCN-Regular.ttf)
+- [UnitoCN-Bold.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoCN-Bold.ttf)
+- [UnitoCN-Condensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoCN-Condensed.ttf)
+- [UnitoCN-BoldCondensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoCN-BoldCondensed.ttf)
 
-- `CustomFilter_GF_Latin_All.plist` in `sources` is practical if you use GlyphsApp, you can remove it otherwise. Placed in the same directory as the your `.glyphs` file, it will allow Glyphs to display a filter list for all GF Latin glyphsets in app. To make sure your font supports the minimal set required by Google Fonts, look at the `GF_Latin_Core` filter list. Find other glyphsets and list formats for different software in [GF Glyphsets repository](https://github.com/googlefonts/glyphsets/tree/main/GF_glyphsets).
+### Unito HK (Hong Kong)
 
-- Once you are happy with your font, add promotional assets in the documentation directory. Make it different from the pic you use in this README. You can get inspired by existing tweet @googlefonts like: https://twitter.com/googlefonts/status/1415562928657416192.
+- [UnitoHK-Regular.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoHK-Regular.ttf)
+- [UnitoHK-Bold.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoHK-Bold.ttf)
+- [UnitoHK-Condensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoHK-Condensed.ttf)
+- [UnitoHK-BoldCondensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoHK-BoldCondensed.ttf)
 
-- Google Fonts uses Github Releases to manage font families. If you feel your font project has hit a milestone, you must create a new release for it. In order to do this, go to the releases page and hit the "Draft a new release button". You must provide a tag number and title which can only be a decimal number e.g 0.100, 1.000 etc. For the body text, mention what has changed since the last release. Once you are done, hit the "Publish release" button. Here is an example which fulfills the requirements, https://github.com/m4rc1e/test-ufr-family/releases/tag/2.019. For more info regarding Github release, please see the official Github Release [documentation](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository). **Please note that Github Actions must be able to build the fonts before you can make a release. Once you have made a release, the fonts and tests assets will be attached to the release automatically. This may take a while since the fonts and tests will be built from scratch so please be patient.**
+### Unito TW (Taiwan)
 
----
+- [UnitoTW-Regular.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoTW-Regular.ttf)
+- [UnitoTW-Bold.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoTW-Bold.ttf)
+- [UnitoTW-Condensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoTW-Condensed.ttf)
+- [UnitoTW-BoldCondensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoTW-BoldCondensed.ttf)
 
-# My Font
+### Unito KR (Korean)
 
-[![][Fontspector]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-[![][OpenType]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-[![][Universal]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-[![][Google Fonts]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-[![][Glyphset]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-
-[Fontspector]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FFontspectorQA.json
-[OpenType]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FOpentypeSpecificationChecks.json
-[Universal]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FUniversalProfileChecks.json
-[Google Fonts]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FFontFileChecks.json
-[Outline Correctness]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FOutlineCorrectnessChecks.json
-[Glyphset]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FGlyphsetChecks.json
-
-Description of your font goes here. We recommend to start with a very short presentation line (the kind you would use on twitter to present your project for example), and then add as much details as necesary :-) Origin of the project, idea of usage, concept of creation… but also number of masters, axes, character sets, etc.
-
-Don't hesitate to create images!
-
-![Sample Image](documentation/image1.png)
-![Sample Image](documentation/image2.png)
-
-## About
-
-Description of you and/or organisation goes here.
+- [UnitoKR-Regular.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoKR-Regular.ttf)
+- [UnitoKR-Bold.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoKR-Bold.ttf)
+- [UnitoKR-Condensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoKR-Condensed.ttf)
+- [UnitoKR-BoldCondensed.ttf](https://github.com/fontlaborg/unito-font/raw/refs/heads/main/fonts/UnitoKR-BoldCondensed.ttf)
 
 ## Building
 
-Fonts are built automatically by GitHub Actions - take a look in the "Actions" tab for the latest build.
+Fonts are built automatically by GitHub Actions — see the "Actions" tab for the latest build.
 
-If you want to build fonts manually on your own computer:
+To build manually:
 
-- `make build` will produce font files.
-- `make test` will run [FontBakery](https://github.com/googlefonts/fontbakery)'s quality assurance tests.
-- `make proof` will generate HTML proof files.
+- `make build` — produce font files
+- `make test` — run [FontBakery](https://github.com/googlefonts/fontbakery) quality assurance tests
+- `make proof` — generate HTML proof files
 
-The proof files and QA tests are also available automatically via GitHub Actions - look at `https://yourname.github.io/your-font-repository-name`.
+Proof files and QA tests are also available via GitHub Actions at `https://fontlaborg.github.io/unito`.
 
-## Changelog
+## About
 
-When you update your font (new version or new release), please report all notable changes here, with a date.
-[Font Versioning](https://github.com/googlefonts/gf-docs/tree/main/Spec#font-versioning) is based on semver.
-Changelog example:
+Unito is developed by [Fontlab Ltd](https://fontlab.org) and contributors.
 
-**26 May 2021. Version 2.13**
-
-- MAJOR Font turned to a variable font.
-- SIGNIFICANT New Stylistic sets added.
+- **Website**: [fontlaborg.github.io/unito](https://fontlaborg.github.io/unito/)
+- **GitHub**: [github.com/fontlaborg/unito-font](https://github.com/fontlaborg/unito-font)
 
 ## License
 
